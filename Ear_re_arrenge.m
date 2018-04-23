@@ -11,8 +11,22 @@ T = strcat(PathName, FileName);
 T = strcat(PathName, FileName);
 [y2,Fs2] = audioread(T);
 
+len_y1 = length(y1);
+t_y1 = (len_y1-1)/Fs1;
+time1 = 0:1/Fs1:t_y1;
+
 left = y1(:,1);
 righ = y2(:,1);
 
-out = zeros(len(y1),2);
+out = zeros(len_y1,2);%‘g‚İ‡‚í‚¹—p‚Ì•Ï”‚ğ—pˆÓ‚·‚é
 
+out(:,1) = left;
+out(:,2) = righ;
+
+subplot(2,1,1)
+plot(time1,out(:,1))
+
+subplot(2,1,2)
+plot(time1,out(:,2))
+
+soundsc(out,Fs1)

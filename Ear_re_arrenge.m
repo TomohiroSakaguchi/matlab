@@ -23,6 +23,15 @@ out = zeros(len_y1,2);%‘g‚İ‡‚í‚¹—p‚Ì•Ï”‚ğ—pˆÓ‚·‚é
 out(:,1) = left;
 out(:,2) = righ;
 
+figure(1)
+subplot(2,1,1)
+plot(time1,y1(:,1))
+
+subplot(2,1,2)
+plot(time1,y1(:,2))
+
+
+figure(2)
 subplot(2,1,1)
 plot(time1,out(:,1))
 

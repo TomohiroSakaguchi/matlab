@@ -6,6 +6,7 @@ clear
 
 T = strcat(PathName, FileName);
 [signal,Fs] = audioread(T);%データの読み込み
+
 signal = signal(1:30*Fs,1);%特定の部分だけ抜き出し
 len_data = length(signal);
 N = 300; %単位:ms
@@ -49,10 +50,28 @@ for i = 1:dif_line
 end
 S_hat_abso = sqrt(S_hat_abso_square);
 figure, imagesc(20*log10(abs(S_hat_abso))), colorbar, axis xy
+%% 位相の計算
+% Fai = zeros(dif_line,dif_row);
+% for i = 1:dif_line
+%     for j = 1:dif_row
+%         Fai(i,j) = spec;%位相の計算
+%     end
+% end
+
+Fai = spec./S_hat_abso;%複素位相の算出
+
+S_hat = S_hat_abso.*Fai; %S_hat = S_hat_abso * exp(i*Fai);
+for i = 1:dif_line
+    for j = 1:dif_row
+        if isnan(S_hat(i,j))
+            S_hat(i,j) = 0;
+        end
+    end
+end
 
 %% 位相修正
-IF = calcInstFreq(spec,diffSpec,fftLen,windowLen,rotateFlag);% 瞬時周波数を計算する関数，源信号のDGT，微分窓をDGTしたものを使う
-iPCspec = instPhaseCorrection(S_hat_abso,IF,shiftLen,fftLen);% 瞬時位相修正済スペクトログラムを計算する関数
+IF = calcInstFreq(S_hat,diffSpec,fftLen,windowLen,rotateFlag);% 瞬時周波数を計算する関数，源信号のDGT，微分窓をDGTしたものを使う
+iPCspec = instPhaseCorrection(S_hat,IF,shiftLen,fftLen);% 瞬時位相修正済スペクトログラムを計算する関数
 
 figure, cRange = max(abs(spec(:)))/5;
 subplot(1,3,1), imagesc(abs(spec)), axis xy, caxis(cRange*[-1 1])

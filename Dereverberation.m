@@ -7,7 +7,7 @@ clear
 T = strcat(PathName, FileName);
 [signal,Fs] = audioread(T);%データの読み込み
 
-signal = signal(1:30*Fs,1);%特定の部分だけ抜き出し
+signal = signal(1:33*Fs,:);%特定の部分だけ抜き出し
 len_data = length(signal);
 %%
 windowLen = 2^8;         % window length
@@ -22,10 +22,10 @@ tau_sample = fix((tau/1000)*Fs);
 N_sample = fix((N/1000)*Fs);
 lp_range = tau_sample:(len_data-1);
 %% 線形予測
-signal_w = prewhiten(signal(:,1));%事前白色化
+signal_w = prewhiten(signal);%事前白色化
 pcc = lpc(signal_w(lp_range,1),N_sample);%後期残響予測フィルターの計算
-LRP = 0.7.*(filter([0 -pcc(2:end)],1,signal(:,1)));%元データに対して後期残響フィルターかけを行い，後期残響を導出
-%% DGTの準備
+LRP = 0.7.*(filter([0 -pcc(2:end)],1,signal));%元データに対して後期残響フィルターかけを行い，後期残響を導出
+%% DGTの準備(ここから左右分割処理)
 [win,diffWin] = generalizedCosWin(windowLen,'nuttall4termC1'); %窓関数の生成
 signal = zeroPaddingForDGT(signal,shiftLen,fftLen); % DGTを実行させる前にゼロ埋め
 %% DGT(スペクトログラムの計算)

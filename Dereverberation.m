@@ -110,25 +110,20 @@ end
 % Lch
 IF_L = calcInstFreq(S_hat_L,diffSpecL,fftLen,windowLen,rotateFlag);% 瞬時周波数を計算する関数，源信号のDGT，微分窓をDGTしたものを使う
 iPCspec_L = instPhaseCorrection(S_hat_L,IF_L,shiftLen,fftLen);% 瞬時位相修正済スペクトログラムを計算する関数
-IFrev_L = calcInstFreq(LRPspecL,diffSpecL,fftLen,windowLen,rotateFlag);
-iPCrev_L = instPhaseCorrection(LRPspecL,IFrev_L,shiftLen,fftLen);
 
 figure, cRange = max(abs(specL(:)))/5;
-subplot(1,3,1), imagesc(abs(specL(1:40,(end-end/128):end))), axis xy, caxis(cRange*[-1 1])
+subplot(1,3,1), imagesc(abs(specL(1:40,fix(end-end/128):end))), axis xy, caxis(cRange*[-1 1])
 title 'Amplitude'
-subplot(1,3,2), imagesc(real(specL(1:40,(end-end/128):end))), axis xy, caxis(cRange*[-1 1])
+subplot(1,3,2), imagesc(real(specL(1:40,fix(end-end/128):end))), axis xy, caxis(cRange*[-1 1])
 title 'Real part'
-subplot(1,3,3), imagesc(real(iPCspec_L(1:40,(end-end/128):end))), axis xy, caxis(cRange*[-1 1])
+subplot(1,3,3), imagesc(real(iPCspec_L(1:40,fix(end-end/128):end))), axis xy, caxis(cRange*[-1 1])
 title 'Real part (iPC)'
 recon_spec_L = invInstPhaseCorrection(iPCspec_L,IF_L,shiftLen,fftLen); % 位相逆回転
-recon_rev_L = invInstPhaseCorrection(iPCrev_L,IF_L,shiftLen,fftLen);
 figure, imagesc(20*log10(abs(recon_spec_L))), colorbar, axis xy
 
 % Rch
 IF_R = calcInstFreq(S_hat_R,diffSpecR,fftLen,windowLen,rotateFlag);% 瞬時周波数を計算する関数，源信号のDGT，微分窓をDGTしたものを使う
 iPCspec_R = instPhaseCorrection(S_hat_R,IF_R,shiftLen,fftLen);% 瞬時位相修正済スペクトログラムを計算する関数
-IFrev_R = calcInstFreq(LRPspecR,diffSpecR,fftLen,windowLen,rotateFlag);
-iPCrev_R = instPhaseCorrection(LRPspecR,IFrev_R,shiftLen,fftLen);
 
 figure, cRange = max(abs(specR(:)))/5;
 subplot(1,3,1), imagesc(abs(specR(1:40,fix(end-end/128):end))), axis xy, caxis(cRange*[-1 1])
@@ -138,18 +133,14 @@ title 'Real part'
 subplot(1,3,3), imagesc(real(iPCspec_R(1:40,fix(end-end/128):end))), axis xy, caxis(cRange*[-1 1])
 title 'Real part (iPC)'
 recon_spec_R = invInstPhaseCorrection(iPCspec_R,IF_R,shiftLen,fftLen); % 位相逆回転
-recon_rev_R = invInstPhaseCorrection(iPCrev_R,IF_R,shiftLen,fftLen);
 figure, imagesc(20*log10(abs(recon_spec_R))), colorbar, axis xy
 %% 直接音再構成
 dualWin = calcCanonicalDualWindow(win,shiftLen);% 
 reconst_L = invDGT(recon_spec_L,dualWin,shiftLen,fftLen,rotateFlag,zeroPhaseFlag);% 位相修正逆変換したものを逆DGTし
-reconstrev_L = invDGT(recon_rev_L,dualWin,shiftLen,fftLen,rotateFlag,zeroPhaseFlag);
 reconst_R = invDGT(recon_spec_R,dualWin,shiftLen,fftLen,rotateFlag,zeroPhaseFlag);% 位相修正逆変換したものを逆DGTし
-reconstrev_R = invDGT(recon_rev_R,dualWin,shiftLen,fftLen,rotateFlag,zeroPhaseFlag);
-
 %% 左右結合
 direct = [reconst_L,reconst_R];
-rev = [reconstrev_L,reconstrev_R];
+rev = [LRP_L,LRP_R];
 
 %% オーディオ書き出し
 audiowrite('direct.wav',direct,Fs);
